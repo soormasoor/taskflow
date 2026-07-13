@@ -1,8 +1,9 @@
 import Board from "./components/Board";
-import { mockBoard } from "./data/mockData";
+import { useBoardStore } from "./store/boardStore";
 
 function App() {
-  return <Board board={mockBoard} />;
+  const board = useBoardStore((state) => state.board);
+  return <Board board={board} />;
 }
 
 export default App;
