@@ -14,22 +14,22 @@ drag-and-drop, state management, and eventually a real backend.
 
 ## Status
 
-Cards can be picked up and dragged around (dnd-kit), but there's no
-drop logic yet — dropping a card doesn't move it between columns.
-State is still local (Zustand), no persistence.
+Drag and drop works — cards can be dragged between columns and the
+board state updates correctly. Still local Zustand state, no
+persistence yet, so a refresh resets everything back to the mock data.
 
 ## Running locally
 
-\`\`\`bash
+```bash
 npm install
 npm run dev
-\`\`\`
+```
 
 ## Roadmap / TODO
 
 - [ ] center the app title/header at the top
 - [x] Zustand store for board state
-- [ ] drag and drop cards between columns _(dragging works, drop logic in progress)_
+- [x] drag and drop cards between columns
 - [ ] localStorage persistence
 - [ ] card detail modal (edit title/desc/labels/due date)
 - [ ] Express + SQLite backend
