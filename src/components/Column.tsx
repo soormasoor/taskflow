@@ -1,3 +1,4 @@
+import { useDroppable } from "@dnd-kit/core";
 import type { Column as ColumnType, Card as CardType } from "../types";
 import Card from "./Card";
 
@@ -7,8 +8,17 @@ type ColumnProps = {
 };
 
 function Column({ column, cards }: ColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+  });
+
   return (
-    <div className="bg-slate-900/50 rounded-lg p-3 w-72 flex-shrink-0">
+    <div
+      ref={setNodeRef}
+      className={`rounded-lg p-3 w-72 flex-shrink-0 ${
+        isOver ? "bg-slate-800/50" : "bg-slate-900/50"
+      }`}
+    >
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-slate-200">{column.title}</h2>
         <span className="text-xs text-slate-500">{cards.length}</span>
