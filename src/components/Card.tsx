@@ -2,10 +2,9 @@ import type { Card as CardType } from "../types";
 
 type CardProps = {
   card: CardType;
-  onTestMove?: () => void;
 };
 
-function Card({ card, onTestMove }: CardProps) {
+function Card({ card }: CardProps) {
   return (
     <div className="bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-700 hover:border-slate-600 cursor-pointer">
       <h3 className="text-sm font-medium text-white mb-1">{card.title}</h3>
@@ -25,14 +24,6 @@ function Card({ card, onTestMove }: CardProps) {
           <span className="text-[10px] text-slate-500">{card.dueDate}</span>
         )}
       </div>
-      {onTestMove && (
-        <button
-          onClick={onTestMove}
-          className="mt-2 text-[10px] text-blue-400 hover:text-blue-300"
-        >
-          test: move right →
-        </button>
-      )}
     </div>
   );
 }
