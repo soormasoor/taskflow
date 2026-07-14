@@ -29,13 +29,17 @@ function Column({ column, cards }: ColumnProps) {
         <span className="text-xs text-slate-500">{cards.length}</span>
       </div>
       <div className="flex flex-col gap-2">
-        {cards.map((card) => (
-          <Card
-            key={card.id}
-            card={card}
-            onClick={() => setSelectedCard(card)}
-          />
-        ))}
+        {cards.length === 0 ? (
+          <p className="text-xs text-slate-600 italic py-2">No cards yet</p>
+        ) : (
+          cards.map((card) => (
+            <Card
+              key={card.id}
+              card={card}
+              onClick={() => setSelectedCard(card)}
+            />
+          ))
+        )}
       </div>
       <button
         onClick={() => setIsAddModalOpen(true)}
