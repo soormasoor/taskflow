@@ -1,6 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import type { Column as ColumnType, Card as CardType } from "../types";
 import Card from "./Card";
+import { useBoardStore } from "../store/boardStore";
 
 type ColumnProps = {
   column: ColumnType;
@@ -11,6 +12,7 @@ function Column({ column, cards }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
+  const addCard = useBoardStore((state) => state.addCard);
 
   return (
     <div
@@ -28,6 +30,12 @@ function Column({ column, cards }: ColumnProps) {
           <Card key={card.id} card={card} />
         ))}
       </div>
+      <button
+        onClick={() => addCard(column.id, "New card (placeholder)")}
+        className="mt-2 text-xs text-slate-500 hover:text-slate-300 w-full text-left"
+      >
+        + add card
+      </button>
     </div>
   );
 }

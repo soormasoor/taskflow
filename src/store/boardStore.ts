@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Board } from "../types";
+import type { Board, Card } from "../types";
 import { mockBoard } from "../data/mockData";
 
 type BoardStore = {
   board: Board;
   moveCard: (cardId: string, fromColumnId: string, toColumnId: string) => void;
+  addCard: (columnId: string, title: string) => void;
 };
 
 export const useBoardStore = create<BoardStore>()(
@@ -27,6 +28,31 @@ export const useBoardStore = create<BoardStore>()(
             return column;
           });
           return { board: { ...state.board, columns } };
+        }),
+      addCard: (columnId, title) =>
+        set((state) => {
+          const id = `card-${crypto.randomUUID()}`;
+          const newCard: Card = {
+            id,
+            title,
+            description: "",
+            labels: [],
+            dueDate: null,
+          };
+
+          const columns = state.board.columns.map((column) =>
+            column.id === columnId
+              ? { ...column, cardIds: [...column.cardIds, id] }
+              : column,
+          );
+
+          return {
+            board: {
+              ...state.board,
+              cards: { ...state.board.cards, [id]: newCard },
+              columns,
+            },
+          };
         }),
     }),
     {
