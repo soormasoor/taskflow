@@ -15,11 +15,13 @@ drag-and-drop, state management, and eventually a real backend.
 ## Status
 
 Board state persists across refreshes (localStorage via Zustand's
-persist middleware). Drag and drop between columns works. You can add
-new cards via a modal, and click any existing card to edit or delete
-it. Both modals share a common form component. Empty columns show a
-placeholder instead of a blank gap. ESLint is set up and currently
-passes clean. Still no backend — everything lives in the browser.
+persist middleware). Drag and drop between columns works, using
+dnd-kit's DragOverlay so dragging doesn't cause layout/scroll issues.
+You can add new cards via a modal, and click any existing card to edit
+or delete it. Columns can be added, renamed inline, and deleted
+(deleting a column deletes its cards too). Custom-styled scrollbar for
+the horizontal board scroll. ESLint is set up and currently passes
+clean. Still no backend — everything lives in the browser.
 
 ## Running locally
 
@@ -37,7 +39,7 @@ npm run dev
 - [x] add card modal (title/description/labels/due date)
 - [x] card detail modal (view/edit/delete existing cards)
 - [x] empty column state
-- [ ] add/rename/delete columns
+- [x] add/rename/delete columns
 - [ ] Express + SQLite backend
 - [ ] auth
 - [ ] deploy
