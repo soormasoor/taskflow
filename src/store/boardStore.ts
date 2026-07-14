@@ -14,6 +14,8 @@ type BoardStore = {
   board: Board;
   moveCard: (cardId: string, fromColumnId: string, toColumnId: string) => void;
   addCard: (columnId: string, input: NewCardInput) => void;
+  updateCard: (cardId: string, input: NewCardInput) => void;
+  deleteCard: (cardId: string) => void;
 };
 
 export const useBoardStore = create<BoardStore>()(
@@ -51,6 +53,33 @@ export const useBoardStore = create<BoardStore>()(
             board: {
               ...state.board,
               cards: { ...state.board.cards, [id]: newCard },
+              columns,
+            },
+          };
+        }),
+      updateCard: (cardId, input) =>
+        set((state) => ({
+          board: {
+            ...state.board,
+            cards: {
+              ...state.board.cards,
+              [cardId]: { id: cardId, ...input },
+            },
+          },
+        })),
+      deleteCard: (cardId) =>
+        set((state) => {
+          const { [cardId]: _removed, ...remainingCards } = state.board.cards;
+
+          const columns = state.board.columns.map((column) => ({
+            ...column,
+            cardIds: column.cardIds.filter((id) => id !== cardId),
+          }));
+
+          return {
+            board: {
+              ...state.board,
+              cards: remainingCards,
               columns,
             },
           };

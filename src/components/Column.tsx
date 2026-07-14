@@ -3,6 +3,7 @@ import { useDroppable } from "@dnd-kit/core";
 import type { Column as ColumnType, Card as CardType } from "../types";
 import Card from "./Card";
 import AddCardModal from "./AddCardModal";
+import CardDetailModal from "./CardDetailModal";
 
 type ColumnProps = {
   column: ColumnType;
@@ -13,7 +14,8 @@ function Column({ column, cards }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
 
   return (
     <div
@@ -28,19 +30,29 @@ function Column({ column, cards }: ColumnProps) {
       </div>
       <div className="flex flex-col gap-2">
         {cards.map((card) => (
-          <Card key={card.id} card={card} />
+          <Card
+            key={card.id}
+            card={card}
+            onClick={() => setSelectedCard(card)}
+          />
         ))}
       </div>
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => setIsAddModalOpen(true)}
         className="mt-2 text-xs text-slate-500 hover:text-slate-300 w-full text-left"
       >
         + add card
       </button>
-      {isModalOpen && (
+      {isAddModalOpen && (
         <AddCardModal
           columnId={column.id}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsAddModalOpen(false)}
+        />
+      )}
+      {selectedCard && (
+        <CardDetailModal
+          card={selectedCard}
+          onClose={() => setSelectedCard(null)}
         />
       )}
     </div>

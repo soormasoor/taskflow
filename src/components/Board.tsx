@@ -1,4 +1,9 @@
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { Board as BoardType } from "../types";
 import Column from "./Column";
@@ -10,6 +15,12 @@ type BoardProps = {
 
 function Board({ board }: BoardProps) {
   const moveCard = useBoardStore((state) => state.moveCard);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+  );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -27,7 +38,7 @@ function Board({ board }: BoardProps) {
   }
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="flex gap-4 p-6 overflow-x-auto min-h-screen bg-slate-900">
         {board.columns.map((column) => {
           const cards = column.cardIds.map((id) => board.cards[id]);
