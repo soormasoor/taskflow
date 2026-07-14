@@ -3,10 +3,17 @@ import { persist } from "zustand/middleware";
 import type { Board, Card } from "../types";
 import { mockBoard } from "../data/mockData";
 
+type NewCardInput = {
+  title: string;
+  description: string;
+  labels: string[];
+  dueDate: string | null;
+};
+
 type BoardStore = {
   board: Board;
   moveCard: (cardId: string, fromColumnId: string, toColumnId: string) => void;
-  addCard: (columnId: string, title: string) => void;
+  addCard: (columnId: string, input: NewCardInput) => void;
 };
 
 export const useBoardStore = create<BoardStore>()(
@@ -29,16 +36,10 @@ export const useBoardStore = create<BoardStore>()(
           });
           return { board: { ...state.board, columns } };
         }),
-      addCard: (columnId, title) =>
+      addCard: (columnId, input) =>
         set((state) => {
           const id = `card-${crypto.randomUUID()}`;
-          const newCard: Card = {
-            id,
-            title,
-            description: "",
-            labels: [],
-            dueDate: null,
-          };
+          const newCard: Card = { id, ...input };
 
           const columns = state.board.columns.map((column) =>
             column.id === columnId

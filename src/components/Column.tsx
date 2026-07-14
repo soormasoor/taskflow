@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import type { Column as ColumnType, Card as CardType } from "../types";
 import Card from "./Card";
-import { useBoardStore } from "../store/boardStore";
+import AddCardModal from "./AddCardModal";
 
 type ColumnProps = {
   column: ColumnType;
@@ -12,7 +13,7 @@ function Column({ column, cards }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
-  const addCard = useBoardStore((state) => state.addCard);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div
@@ -31,11 +32,17 @@ function Column({ column, cards }: ColumnProps) {
         ))}
       </div>
       <button
-        onClick={() => addCard(column.id, "New card (placeholder)")}
+        onClick={() => setIsModalOpen(true)}
         className="mt-2 text-xs text-slate-500 hover:text-slate-300 w-full text-left"
       >
         + add card
       </button>
+      {isModalOpen && (
+        <AddCardModal
+          columnId={column.id}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
