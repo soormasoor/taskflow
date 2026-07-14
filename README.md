@@ -14,9 +14,9 @@ drag-and-drop, state management, and eventually a real backend.
 
 ## Status
 
-Drag and drop works — cards can be dragged between columns and the
-board state updates correctly. Still local Zustand state, no
-persistence yet, so a refresh resets everything back to the mock data.
+Board state persists across refreshes now (localStorage via Zustand's
+persist middleware). Drag and drop between columns works. Still no
+backend — everything lives in the browser.
 
 ## Running locally
 
@@ -30,7 +30,7 @@ npm run dev
 - [ ] center the app title/header at the top
 - [x] Zustand store for board state
 - [x] drag and drop cards between columns
-- [ ] localStorage persistence
+- [x] localStorage persistence
 - [ ] card detail modal (edit title/desc/labels/due date)
 - [ ] Express + SQLite backend
 - [ ] auth
