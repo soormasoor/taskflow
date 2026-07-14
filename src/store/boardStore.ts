@@ -16,6 +16,9 @@ type BoardStore = {
   addCard: (columnId: string, input: NewCardInput) => void;
   updateCard: (cardId: string, input: NewCardInput) => void;
   deleteCard: (cardId: string) => void;
+  addColumn: (title: string) => void;
+  renameColumn: (columnId: string, title: string) => void;
+  deleteColumn: (columnId: string) => void;
 };
 
 export const useBoardStore = create<BoardStore>()(
@@ -81,6 +84,43 @@ export const useBoardStore = create<BoardStore>()(
               ...state.board,
               cards: remainingCards,
               columns,
+            },
+          };
+        }),
+      addColumn: (title) =>
+        set((state) => {
+          const id = `col-${crypto.randomUUID()}`;
+          return {
+            board: {
+              ...state.board,
+              columns: [...state.board.columns, { id, title, cardIds: [] }],
+            },
+          };
+        }),
+      renameColumn: (columnId, title) =>
+        set((state) => ({
+          board: {
+            ...state.board,
+            columns: state.board.columns.map((column) =>
+              column.id === columnId ? { ...column, title } : column,
+            ),
+          },
+        })),
+      deleteColumn: (columnId) =>
+        set((state) => {
+          const column = state.board.columns.find((col) => col.id === columnId);
+          if (!column) return state;
+
+          const cards = { ...state.board.cards };
+          column.cardIds.forEach((cardId) => {
+            delete cards[cardId];
+          });
+
+          return {
+            board: {
+              ...state.board,
+              columns: state.board.columns.filter((col) => col.id !== columnId),
+              cards,
             },
           };
         }),
