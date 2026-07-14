@@ -7,8 +7,8 @@ drag-and-drop, state management, and eventually a real backend.
 
 - React + TypeScript + Vite
 - Tailwind CSS
-- dnd-kit (drag and drop) — not wired up yet
-- Zustand (state management) — not wired up yet
+- dnd-kit (drag and drop)
+- Zustand (state management)
 - Later: Node/Express + SQLite (Prisma), basic auth, deployed on
   Vercel + Render
 
@@ -17,8 +17,9 @@ drag-and-drop, state management, and eventually a real backend.
 Board state persists across refreshes (localStorage via Zustand's
 persist middleware). Drag and drop between columns works. You can add
 new cards via a modal, and click any existing card to edit or delete
-it. ESLint is set up and currently passes clean. Still no backend —
-everything lives in the browser.
+it. Both modals share a common form component. ESLint is set up and
+currently passes clean. Still no backend — everything lives in the
+browser.
 
 ## Running locally
 
