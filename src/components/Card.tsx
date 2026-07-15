@@ -18,6 +18,7 @@ function Card({ card, onClick }: CardProps) {
       {...listeners}
       {...attributes}
       onClick={onClick}
+      style={{ touchAction: "none" }}
       className={`bg-slate-800 rounded-lg p-3 shadow-sm border border-slate-700 hover:border-slate-600 cursor-grab ${
         isDragging ? "opacity-40" : ""
       }`}
