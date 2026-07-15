@@ -18,10 +18,11 @@ Frontend is feature-complete: boards, columns, cards, drag-and-drop
 localStorage persistence, empty states, custom scrollbar. ESLint
 passes clean.
 
-Backend work has started — a bare Express server exists under
-`server/` with a health-check route, no database wired up yet. The
-frontend is still running entirely on localStorage for now; nothing
-talks to the backend yet.
+Backend: Express server running with a Prisma + SQLite schema
+(Board, Column, Card tables) and an initial migration applied. No API
+routes yet — the database exists but nothing reads or writes to it.
+The frontend is still fully running on localStorage; nothing talks to
+the backend yet.
 
 ## Running locally
 
@@ -52,7 +53,7 @@ npm run dev
 - [x] add/rename/delete columns
 - [x] mobile touch drag-and-drop support
 - [x] bare Express server
-- [ ] Prisma + SQLite schema
+- [x] Prisma + SQLite schema, init migration
 - [ ] CRUD API routes
 - [ ] connect frontend to backend, replace localStorage
 - [ ] auth
