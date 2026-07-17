@@ -8,7 +8,7 @@ drag-and-drop, state management, and eventually a real backend.
 - Frontend: React + TypeScript + Vite, Tailwind CSS
 - Drag-and-drop: dnd-kit
 - State management: Zustand
-- Backend (in progress): Node + Express, SQLite via Prisma
+- Backend: Node + Express, SQLite via Prisma
 - Later: auth, deployed on Vercel + Render
 
 ## Status
@@ -18,11 +18,12 @@ Frontend is feature-complete: boards, columns, cards, drag-and-drop
 localStorage persistence, empty states, custom scrollbar. ESLint
 passes clean.
 
-Backend: Express server running with a Prisma + SQLite schema
-(Board, Column, Card tables) and an initial migration applied. No API
-routes yet — the database exists but nothing reads or writes to it.
-The frontend is still fully running on localStorage; nothing talks to
-the backend yet.
+Backend: Express server with Prisma + SQLite. Boards and columns have
+working CRUD routes (POST/GET for boards, POST/PATCH/DELETE for
+columns), verified against a real database. Card routes are next.
+The frontend is still fully running on localStorage; nothing in the
+UI talks to the backend yet — that wiring comes after the API is
+complete.
 
 ## Running locally
 
@@ -54,7 +55,8 @@ npm run dev
 - [x] mobile touch drag-and-drop support
 - [x] bare Express server
 - [x] Prisma + SQLite schema, init migration
-- [ ] CRUD API routes
+- [x] board + column CRUD routes
+- [ ] card CRUD routes
 - [ ] connect frontend to backend, replace localStorage
 - [ ] auth
 - [ ] deploy
