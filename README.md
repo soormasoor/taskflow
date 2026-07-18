@@ -1,7 +1,7 @@
 # TaskFlow
 
 A Kanban-style task board, built to practice React + TypeScript with
-drag-and-drop, state management, and eventually a real backend.
+drag-and-drop, state management, and a real backend.
 
 ## Stack
 
@@ -13,18 +13,18 @@ drag-and-drop, state management, and eventually a real backend.
 
 ## Status
 
-Frontend is feature-complete: boards, columns, cards, drag-and-drop
-(desktop + mobile), add/edit/delete for both cards and columns, empty
-states, custom scrollbar. ESLint passes clean.
+Full stack, working end to end. Frontend: boards, columns, cards,
+drag-and-drop (desktop + mobile), add/edit/delete for cards and
+columns, empty states, custom scrollbar, loading and error states.
+Backend: Express + Prisma + SQLite, full CRUD for boards, columns,
+and cards. The frontend now reads and writes through the real API —
+localStorage has been fully removed. Card moves are optimistic (UI
+updates instantly, rolls back if the request fails); everything else
+waits for server confirmation before updating.
 
-Backend is functionally complete: Express + Prisma + SQLite, full CRUD
-for boards, columns, and cards.
-
-Currently connecting the two: an API client and a data-shape transform
-(server's nested board → frontend's normalized board) are built and
-verified against the real backend. The Zustand store itself still
-runs on localStorage for now — swapping it over to the API is the
-next step.
+Single-board scope for now: on first load, the app fetches existing
+boards or creates one automatically if none exist. No board-switching
+UI yet.
 
 ## Running locally
 
@@ -46,22 +46,21 @@ npm install
 npm run dev
 ```
 
+Useful scripts: `npm run lint`, `npm run typecheck`.
+
 ## Roadmap / TODO
 
 - [x] center the app title/header at the top
 - [x] Zustand store for board state
 - [x] drag and drop cards between columns
-- [x] localStorage persistence
 - [x] add card modal (title/description/labels/due date)
 - [x] card detail modal (view/edit/delete existing cards)
 - [x] empty column state
 - [x] add/rename/delete columns
 - [x] mobile touch drag-and-drop support
-- [x] bare Express server
-- [x] Prisma + SQLite schema, init migration
-- [x] board + column CRUD routes
-- [x] card CRUD routes
-- [x] frontend API client + data transform
-- [ ] wire store to backend (replace localStorage), loading/error states
+- [x] Express server, Prisma + SQLite
+- [x] board + column + card CRUD routes
+- [x] frontend wired to real backend, localStorage removed
+- [x] loading + error states
 - [ ] auth
 - [ ] deploy
