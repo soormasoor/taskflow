@@ -18,12 +18,12 @@ Frontend is feature-complete: boards, columns, cards, drag-and-drop
 localStorage persistence, empty states, custom scrollbar. ESLint
 passes clean.
 
-Backend: Express server with Prisma + SQLite. Boards and columns have
-working CRUD routes (POST/GET for boards, POST/PATCH/DELETE for
-columns), verified against a real database. Card routes are next.
-The frontend is still fully running on localStorage; nothing in the
-UI talks to the backend yet — that wiring comes after the API is
-complete.
+Backend is functionally complete: Express + Prisma + SQLite, full CRUD
+for boards, columns, and cards, verified against a real database.
+Labels are stored as a comma-separated string in SQLite and converted
+to/from an array at the API boundary. The frontend is still fully
+running on localStorage; nothing in the UI talks to the backend yet —
+that's the next step.
 
 ## Running locally
 
@@ -56,7 +56,7 @@ npm run dev
 - [x] bare Express server
 - [x] Prisma + SQLite schema, init migration
 - [x] board + column CRUD routes
-- [ ] card CRUD routes
+- [x] card CRUD routes
 - [ ] connect frontend to backend, replace localStorage
 - [ ] auth
 - [ ] deploy
