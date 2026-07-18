@@ -1,7 +1,18 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type { Board, Card } from "../types";
-import { mockBoard } from "../data/mockData";
+import type { Board, Column } from "../types";
+import {
+  fetchBoards,
+  createBoard,
+  fetchBoard,
+  createColumnApi,
+  renameColumnApi,
+  deleteColumnApi,
+  createCardApi,
+  updateCardApi,
+  moveCardApi,
+  deleteCardApi,
+} from "../api/client";
+import { toFrontendBoard } from "../api/transform";
 
 type NewCardInput = {
   title: string;
@@ -11,122 +22,210 @@ type NewCardInput = {
 };
 
 type BoardStore = {
-  board: Board;
-  moveCard: (cardId: string, fromColumnId: string, toColumnId: string) => void;
-  addCard: (columnId: string, input: NewCardInput) => void;
-  updateCard: (cardId: string, input: NewCardInput) => void;
-  deleteCard: (cardId: string) => void;
-  addColumn: (title: string) => void;
-  renameColumn: (columnId: string, title: string) => void;
-  deleteColumn: (columnId: string) => void;
+  board: Board | null;
+  boardId: string | null;
+  isLoading: boolean;
+  error: string | null;
+  loadBoard: () => Promise<void>;
+  moveCard: (
+    cardId: string,
+    fromColumnId: string,
+    toColumnId: string,
+  ) => Promise<void>;
+  addCard: (columnId: string, input: NewCardInput) => Promise<void>;
+  updateCard: (cardId: string, input: NewCardInput) => Promise<void>;
+  deleteCard: (cardId: string) => Promise<void>;
+  addColumn: (title: string) => Promise<void>;
+  renameColumn: (columnId: string, title: string) => Promise<void>;
+  deleteColumn: (columnId: string) => Promise<void>;
 };
 
-export const useBoardStore = create<BoardStore>()(
-  persist(
-    (set) => ({
-      board: mockBoard,
-      moveCard: (cardId, fromColumnId, toColumnId) =>
-        set((state) => {
-          const columns = state.board.columns.map((column) => {
-            if (column.id === fromColumnId) {
-              return {
-                ...column,
-                cardIds: column.cardIds.filter((id) => id !== cardId),
-              };
-            }
-            if (column.id === toColumnId) {
-              return { ...column, cardIds: [...column.cardIds, cardId] };
-            }
-            return column;
-          });
-          return { board: { ...state.board, columns } };
-        }),
-      addCard: (columnId, input) =>
-        set((state) => {
-          const id = `card-${crypto.randomUUID()}`;
-          const newCard: Card = { id, ...input };
+export const useBoardStore = create<BoardStore>((set, get) => ({
+  board: null,
+  boardId: null,
+  isLoading: true,
+  error: null,
 
-          const columns = state.board.columns.map((column) =>
-            column.id === columnId
-              ? { ...column, cardIds: [...column.cardIds, id] }
-              : column,
-          );
+  loadBoard: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const boards = await fetchBoards();
+      const summary = boards[0] ?? (await createBoard("My Board"));
+      const fullBoard = await fetchBoard(summary.id);
+      set({
+        board: toFrontendBoard(fullBoard),
+        boardId: summary.id,
+        isLoading: false,
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Failed to load board",
+        isLoading: false,
+      });
+    }
+  },
 
-          return {
-            board: {
-              ...state.board,
-              cards: { ...state.board.cards, [id]: newCard },
-              columns,
-            },
-          };
-        }),
-      updateCard: (cardId, input) =>
-        set((state) => ({
-          board: {
-            ...state.board,
-            cards: {
-              ...state.board.cards,
-              [cardId]: { id: cardId, ...input },
-            },
+  moveCard: async (cardId, fromColumnId, toColumnId) => {
+    const state = get();
+    if (!state.board) return;
+
+    // optimistic: update local state immediately
+    const columns = state.board.columns.map((column) => {
+      if (column.id === fromColumnId) {
+        return {
+          ...column,
+          cardIds: column.cardIds.filter((id) => id !== cardId),
+        };
+      }
+      if (column.id === toColumnId) {
+        return { ...column, cardIds: [...column.cardIds, cardId] };
+      }
+      return column;
+    });
+    const previousBoard = state.board;
+    set({ board: { ...state.board, columns } });
+
+    const newOrder =
+      columns.find((col) => col.id === toColumnId)!.cardIds.length - 1;
+
+    try {
+      await moveCardApi(cardId, toColumnId, newOrder);
+    } catch (err) {
+      // rollback on failure
+      set({
+        board: previousBoard,
+        error: err instanceof Error ? err.message : "Failed to move card",
+      });
+    }
+  },
+
+  addCard: async (columnId, input) => {
+    const state = get();
+    if (!state.board) return;
+    try {
+      const serverCard = await createCardApi(columnId, input);
+      const board = state.board;
+      set({
+        board: {
+          ...board,
+          cards: {
+            ...board.cards,
+            [serverCard.id]: { ...input, id: serverCard.id },
           },
-        })),
-      deleteCard: (cardId) =>
-        set((state) => {
-          const { [cardId]: _removed, ...remainingCards } = state.board.cards;
+          columns: board.columns.map((column) =>
+            column.id === columnId
+              ? { ...column, cardIds: [...column.cardIds, serverCard.id] }
+              : column,
+          ),
+        },
+      });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Failed to add card" });
+    }
+  },
 
-          const columns = state.board.columns.map((column) => ({
+  updateCard: async (cardId, input) => {
+    const state = get();
+    if (!state.board) return;
+    try {
+      await updateCardApi(cardId, input);
+      const board = state.board;
+      set({
+        board: {
+          ...board,
+          cards: { ...board.cards, [cardId]: { id: cardId, ...input } },
+        },
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Failed to update card",
+      });
+    }
+  },
+
+  deleteCard: async (cardId) => {
+    const state = get();
+    if (!state.board) return;
+    try {
+      await deleteCardApi(cardId);
+      const board = state.board;
+      const { [cardId]: _removed, ...remainingCards } = board.cards;
+      set({
+        board: {
+          ...board,
+          cards: remainingCards,
+          columns: board.columns.map((column) => ({
             ...column,
             cardIds: column.cardIds.filter((id) => id !== cardId),
-          }));
+          })),
+        },
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Failed to delete card",
+      });
+    }
+  },
 
-          return {
-            board: {
-              ...state.board,
-              cards: remainingCards,
-              columns,
-            },
-          };
-        }),
-      addColumn: (title) =>
-        set((state) => {
-          const id = `col-${crypto.randomUUID()}`;
-          return {
-            board: {
-              ...state.board,
-              columns: [...state.board.columns, { id, title, cardIds: [] }],
-            },
-          };
-        }),
-      renameColumn: (columnId, title) =>
-        set((state) => ({
-          board: {
-            ...state.board,
-            columns: state.board.columns.map((column) =>
-              column.id === columnId ? { ...column, title } : column,
-            ),
-          },
-        })),
-      deleteColumn: (columnId) =>
-        set((state) => {
-          const column = state.board.columns.find((col) => col.id === columnId);
-          if (!column) return state;
+  addColumn: async (title) => {
+    const state = get();
+    if (!state.board || !state.boardId) return;
+    try {
+      const serverColumn = await createColumnApi(state.boardId, title);
+      const board = state.board;
+      const newColumn: Column = { id: serverColumn.id, title, cardIds: [] };
+      set({ board: { ...board, columns: [...board.columns, newColumn] } });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Failed to add column",
+      });
+    }
+  },
 
-          const cards = { ...state.board.cards };
-          column.cardIds.forEach((cardId) => {
-            delete cards[cardId];
-          });
+  renameColumn: async (columnId, title) => {
+    const state = get();
+    if (!state.board) return;
+    try {
+      await renameColumnApi(columnId, title);
+      const board = state.board;
+      set({
+        board: {
+          ...board,
+          columns: board.columns.map((column) =>
+            column.id === columnId ? { ...column, title } : column,
+          ),
+        },
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Failed to rename column",
+      });
+    }
+  },
 
-          return {
-            board: {
-              ...state.board,
-              columns: state.board.columns.filter((col) => col.id !== columnId),
-              cards,
-            },
-          };
-        }),
-    }),
-    {
-      name: "taskflow-board",
-    },
-  ),
-);
+  deleteColumn: async (columnId) => {
+    const state = get();
+    if (!state.board) return;
+    try {
+      await deleteColumnApi(columnId);
+      const board = state.board;
+      const column = board.columns.find((col) => col.id === columnId);
+      if (!column) return;
+      const cards = { ...board.cards };
+      column.cardIds.forEach((cardId) => {
+        delete cards[cardId];
+      });
+      set({
+        board: {
+          ...board,
+          columns: board.columns.filter((col) => col.id !== columnId),
+          cards,
+        },
+      });
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : "Failed to delete column",
+      });
+    }
+  },
+}));
