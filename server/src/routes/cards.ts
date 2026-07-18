@@ -1,14 +1,8 @@
 import { Router } from "express";
 import { prisma } from "../prisma.js";
+import { serializeCard } from "../serialize.js";
 
 export const cardsRouter = Router();
-
-function serializeCard(card: { labels: string; [key: string]: unknown }) {
-  return {
-    ...card,
-    labels: card.labels ? card.labels.split(",").filter(Boolean) : [],
-  };
-}
 
 cardsRouter.post("/", async (req, res) => {
   const { columnId, title, description, labels, dueDate } = req.body;

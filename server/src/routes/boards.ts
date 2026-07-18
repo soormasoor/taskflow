@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../prisma.js";
+import { serializeCard } from "../serialize.js";
 
 export const boardsRouter = Router();
 
@@ -28,7 +29,15 @@ boardsRouter.get("/:id", async (req, res) => {
     return;
   }
 
-  res.json(board);
+  const serialized = {
+    ...board,
+    columns: board.columns.map((column) => ({
+      ...column,
+      cards: column.cards.map(serializeCard),
+    })),
+  };
+
+  res.json(serialized);
 });
 
 boardsRouter.post("/", async (req, res) => {
