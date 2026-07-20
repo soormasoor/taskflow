@@ -16,7 +16,7 @@ inactivity — the first request after a period of idle time can take
 - Drag-and-drop: dnd-kit
 - State management: Zustand
 - Backend: Node + Express, PostgreSQL via Prisma — deployed on Render
-- Later: auth
+- Auth: JWT-based, bcrypt password hashing
 
 ## Status
 
@@ -33,15 +33,18 @@ have the permissions Prisma's `migrate dev` needs for its
 shadow-database step. External connections require SSL
 (`sslmode=require`).
 
-Single-board scope for now: on first load, the app fetches existing
-boards or creates one automatically if none exist. No board-switching
-UI yet, and no auth yet — anyone with the link can use the one board.
+Auth is in progress: a `User` model exists, and register/login routes
+issue JWTs, verified working. The existing board/column/card routes
+aren't protected by auth yet, and the frontend doesn't have a
+login/register UI yet — both are next. The plan also includes a
+frictionless local-only "guest mode" so anyone can try the app
+instantly without creating an account.
 
 ## Running locally
 
 Copy `.env.example` to `.env` at the project root (frontend) and in
-`server/`, and fill in your own Postgres connection string for the
-backend one.
+`server/`, and fill in your own Postgres connection string and a JWT
+secret for the backend one.
 
 Frontend:
 
@@ -66,8 +69,8 @@ Frontend is deployed on Vercel, root directory at the repo root,
 `VITE_API_URL` pointed at the live backend. Backend is deployed on
 Render as a web service with root directory `server`, build command
 `npm install && npm run build && npx prisma db push`, start command
-`npm start`, and `DATABASE_URL` set as an environment variable
-pointing at a Render Postgres instance.
+`npm start`, and `DATABASE_URL`/`JWT_SECRET` set as environment
+variables.
 
 ## Roadmap / TODO
 
@@ -84,4 +87,7 @@ pointing at a Render Postgres instance.
 - [x] frontend wired to real backend
 - [x] loading + error states
 - [x] deploy backend (Render) + frontend (Vercel)
-- [ ] auth
+- [x] user model, register/login routes
+- [ ] protect existing routes with auth, tie boards to users
+- [ ] frontend login/register UI
+- [ ] guest/demo mode (local-only, no account needed)
