@@ -3,6 +3,7 @@ import cors from "cors";
 import { boardsRouter } from "./routes/boards.js";
 import { columnsRouter } from "./routes/columns.js";
 import { cardsRouter } from "./routes/cards.js";
+import { authRouter } from "./routes/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,6 +15,7 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.use("/auth", authRouter);
 app.use("/boards", boardsRouter);
 app.use("/columns", columnsRouter);
 app.use("/cards", cardsRouter);
