@@ -3,33 +3,39 @@
 A Kanban-style task board, built to practice React + TypeScript with
 drag-and-drop, state management, and a real backend.
 
+**Live app:** https://taskflow-nine-alpha.vercel.app
+**API:** https://taskflow-api-ihfe.onrender.com
+
+The backend is hosted on Render's free tier, which spins down after
+inactivity — the first request after a period of idle time can take
+30-60 seconds to wake up. Subsequent requests are fast.
+
 ## Stack
 
-- Frontend: React + TypeScript + Vite, Tailwind CSS
+- Frontend: React + TypeScript + Vite, Tailwind CSS — deployed on Vercel
 - Drag-and-drop: dnd-kit
 - State management: Zustand
-- Backend: Node + Express, PostgreSQL via Prisma
-- Later: auth, deployed on Vercel + Render
+- Backend: Node + Express, PostgreSQL via Prisma — deployed on Render
+- Later: auth
 
 ## Status
 
-Full stack, working end to end, now running on a real hosted Postgres
-database (Render) both locally and eventually in production — chosen
-over SQLite specifically to avoid dev/prod environment mismatches.
-Schema is applied via `prisma db push` rather than a formal migration
-history, since Render's free-tier database role doesn't have the
-permissions Prisma's `migrate dev` needs for its shadow-database step.
+Full stack, deployed, and working end to end.
 
 Frontend: boards, columns, cards, drag-and-drop (desktop + mobile),
 add/edit/delete for cards and columns, empty states, custom
-scrollbar, loading and error states. Backend: Express + Prisma +
-Postgres, full CRUD for boards, columns, and cards, external
-connections require SSL (`sslmode=require`).
+scrollbar, loading and error states.
+
+Backend: Express + Prisma + Postgres, full CRUD for boards, columns,
+and cards. Schema is applied via `prisma db push` rather than a
+formal migration history, since the free-tier database role doesn't
+have the permissions Prisma's `migrate dev` needs for its
+shadow-database step. External connections require SSL
+(`sslmode=require`).
 
 Single-board scope for now: on first load, the app fetches existing
 boards or creates one automatically if none exist. No board-switching
-UI yet. Not yet deployed — running locally against the hosted
-database.
+UI yet, and no auth yet — anyone with the link can use the one board.
 
 ## Running locally
 
@@ -54,6 +60,15 @@ npm run dev
 
 Useful scripts: `npm run lint`, `npm run typecheck`.
 
+## Deployment
+
+Frontend is deployed on Vercel, root directory at the repo root,
+`VITE_API_URL` pointed at the live backend. Backend is deployed on
+Render as a web service with root directory `server`, build command
+`npm install && npm run build && npx prisma db push`, start command
+`npm start`, and `DATABASE_URL` set as an environment variable
+pointing at a Render Postgres instance.
+
 ## Roadmap / TODO
 
 - [x] center the app title/header at the top
@@ -68,5 +83,5 @@ Useful scripts: `npm run lint`, `npm run typecheck`.
 - [x] board + column + card CRUD routes
 - [x] frontend wired to real backend
 - [x] loading + error states
-- [ ] deploy backend + frontend
+- [x] deploy backend (Render) + frontend (Vercel)
 - [ ] auth
