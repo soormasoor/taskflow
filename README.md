@@ -24,21 +24,18 @@ Full stack, deployed, and working end to end.
 
 Frontend: boards, columns, cards, drag-and-drop (desktop + mobile),
 add/edit/delete for cards and columns, empty states, custom
-scrollbar, loading and error states.
+scrollbar, loading and error states. **Not yet updated for auth** —
+still calls the API without sending a token, so it currently can't
+successfully load data now that the backend requires authentication.
 
 Backend: Express + Prisma + Postgres, full CRUD for boards, columns,
-and cards. Schema is applied via `prisma db push` rather than a
-formal migration history, since the free-tier database role doesn't
-have the permissions Prisma's `migrate dev` needs for its
-shadow-database step. External connections require SSL
-(`sslmode=require`).
-
-Auth is in progress: a `User` model exists, and register/login routes
-issue JWTs, verified working. The existing board/column/card routes
-aren't protected by auth yet, and the frontend doesn't have a
-login/register UI yet — both are next. The plan also includes a
-frictionless local-only "guest mode" so anyone can try the app
-instantly without creating an account.
+and cards, all routes now require a valid JWT and scope data to the
+requesting user — verified that unauthenticated requests are rejected
+and that users can only see/modify their own boards. Schema is
+applied via `prisma db push` rather than a formal migration history,
+since the free-tier database role doesn't have the permissions
+Prisma's `migrate dev` needs for its shadow-database step. External
+connections require SSL (`sslmode=require`).
 
 ## Running locally
 
@@ -88,6 +85,6 @@ variables.
 - [x] loading + error states
 - [x] deploy backend (Render) + frontend (Vercel)
 - [x] user model, register/login routes
-- [ ] protect existing routes with auth, tie boards to users
+- [x] protect existing routes with auth, tie boards to users
 - [ ] frontend login/register UI
 - [ ] guest/demo mode (local-only, no account needed)
