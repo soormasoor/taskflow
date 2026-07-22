@@ -31,9 +31,35 @@ type BoardSummary = {
   createdAt: string;
 };
 
+type AuthUser = {
+  id: string;
+  email: string;
+};
+
+type AuthResult = {
+  token: string;
+  user: AuthUser;
+};
+
+function getStoredToken(): string | null {
+  const raw = localStorage.getItem("taskflow-auth");
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed.state?.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getStoredToken();
+
   const res = await fetch(`${API_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
     ...options,
   });
 
@@ -47,6 +73,20 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   return res.json();
+}
+
+export function authLogin(email: string, password: string) {
+  return request<AuthResult>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export function authRegister(email: string, password: string) {
+  return request<AuthResult>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
 }
 
 export function fetchBoards() {
