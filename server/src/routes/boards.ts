@@ -1,19 +1,26 @@
 import { Router } from "express";
 import { prisma } from "../prisma.js";
 import { serializeCard } from "../serialize.js";
+import { requireAuth } from "../middleware/auth.js";
+import type { AuthedRequest } from "../middleware/auth.js";
 
 export const boardsRouter = Router();
 
-boardsRouter.get("/", async (req, res) => {
+boardsRouter.use(requireAuth);
+
+boardsRouter.get("/", async (req: AuthedRequest, res) => {
   const boards = await prisma.board.findMany({
+    where: { userId: req.userId },
     orderBy: { createdAt: "asc" },
   });
   res.json(boards);
 });
 
-boardsRouter.get("/:id", async (req, res) => {
+boardsRouter.get("/:id", async (req: AuthedRequest, res) => {
+  const boardId = req.params.id as string;
+
   const board = await prisma.board.findUnique({
-    where: { id: req.params.id },
+    where: { id: boardId },
     include: {
       columns: {
         orderBy: { order: "asc" },
@@ -24,7 +31,7 @@ boardsRouter.get("/:id", async (req, res) => {
     },
   });
 
-  if (!board) {
+  if (!board || board.userId !== req.userId) {
     res.status(404).json({ error: "Board not found" });
     return;
   }
@@ -40,7 +47,7 @@ boardsRouter.get("/:id", async (req, res) => {
   res.json(serialized);
 });
 
-boardsRouter.post("/", async (req, res) => {
+boardsRouter.post("/", async (req: AuthedRequest, res) => {
   const { title } = req.body;
 
   if (!title || typeof title !== "string") {
@@ -49,7 +56,7 @@ boardsRouter.post("/", async (req, res) => {
   }
 
   const board = await prisma.board.create({
-    data: { title },
+    data: { title, userId: req.userId! },
   });
 
   res.status(201).json(board);
