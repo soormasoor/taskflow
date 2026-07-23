@@ -8,6 +8,7 @@ function AuthScreen() {
 
   const login = useAuthStore((state) => state.login);
   const register = useAuthStore((state) => state.register);
+  const continueAsGuest = useAuthStore((state) => state.continueAsGuest);
   const isLoading = useAuthStore((state) => state.isLoading);
   const error = useAuthStore((state) => state.error);
 
@@ -67,6 +68,15 @@ function AuthScreen() {
             ? "Don't have an account? Register"
             : "Already have an account? Log in"}
         </button>
+
+        <div className="mt-4 pt-4 border-t border-slate-700">
+          <button
+            onClick={continueAsGuest}
+            className="text-xs text-slate-500 hover:text-slate-300 w-full text-center"
+          >
+            Continue as guest — try it without an account
+          </button>
+        </div>
       </div>
     </div>
   );
