@@ -20,14 +20,19 @@ inactivity — the first request after a period of idle time can take
 
 ## Status
 
-Full stack, deployed, and working end to end, now with real auth.
+Full stack, deployed, and working end to end, with real auth and a
+guest mode.
+
 Registering creates an account and an empty board; logging in loads
-that user's own board and nobody else's. Token is stored in
-localStorage so refreshing the page keeps you logged in.
+that user's own board and nobody else's. There's also a "continue as
+guest" option on the login screen — guest boards live entirely in
+that browser's localStorage, never touch the server, and persist
+across refreshes for that browser only.
 
 Frontend: boards, columns, cards, drag-and-drop (desktop + mobile),
 add/edit/delete for cards and columns, empty states, custom
-scrollbar, loading and error states, login/register/logout.
+scrollbar, loading and error states, login/register/logout, guest
+mode with a dismissible notice banner.
 
 Backend: Express + Prisma + Postgres, full CRUD for boards, columns,
 and cards, all routes require a valid JWT and scope data to the
@@ -37,8 +42,8 @@ have the permissions Prisma's `migrate dev` needs for its
 shadow-database step. External connections require SSL
 (`sslmode=require`).
 
-Not yet built: a guest/demo mode for trying the app without creating
-an account (planned next).
+Not yet deployed to production — the live links above are still
+running the pre-auth version until the next deploy.
 
 ## Running locally
 
@@ -72,10 +77,6 @@ Render as a web service with root directory `server`, build command
 `npm start`, and `DATABASE_URL`/`JWT_SECRET` set as environment
 variables.
 
-**Note:** deploying this update will require setting `JWT_SECRET` on
-the live Render service if it isn't already there, and the live
-frontend needs a fresh deploy to pick up the new auth-aware code.
-
 ## Roadmap / TODO
 
 - [x] center the app title/header at the top
@@ -94,5 +95,5 @@ frontend needs a fresh deploy to pick up the new auth-aware code.
 - [x] user model, register/login routes
 - [x] protect existing routes with auth, tie boards to users
 - [x] frontend login/register UI
-- [ ] guest/demo mode (local-only, no account needed)
-- [ ] deploy auth updates to production
+- [x] guest/demo mode (local-only, no account needed)
+- [ ] deploy auth + guest mode updates to production
