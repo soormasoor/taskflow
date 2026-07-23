@@ -16,6 +16,7 @@ function App() {
   const loadGuestBoard = useBoardStore((state) => state.loadGuestBoard);
 
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [showSlowLoadMessage, setShowSlowLoadMessage] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -24,6 +25,15 @@ function App() {
       loadGuestBoard();
     }
   }, [token, isGuestAuth, loadBoard, loadGuestBoard]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setShowSlowLoadMessage(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowSlowLoadMessage(true), 3000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   if (!token && !isGuestAuth) {
     return <AuthScreen />;
@@ -58,8 +68,15 @@ function App() {
       )}
 
       {isLoading && (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center py-20 gap-2">
           <p className="text-slate-400 text-sm">Loading board...</p>
+          {showSlowLoadMessage && (
+            <p className="text-slate-500 text-xs max-w-xs text-center">
+              The backend is hosted on a free tier that sleeps when idle — first
+              load after a while can take up to a minute. Thanks for your
+              patience!
+            </p>
+          )}
         </div>
       )}
 
